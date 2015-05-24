@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<!-- Meta data -->
+	<meta charset="UTF-8">
+	<title>Layout editor</title>
+
+	<!-- Style sheets -->
+	<link rel="stylesheet" href="css/editor.css">
+	<link rel="stylesheet" href="css/layout.css">
+	<link rel="stylesheet" href="css/semantic.css">
+
+	<!-- Libraries -->
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/semantic.js"></script>
+	<script type="text/javascript" src="js/keymaster.min.js"></script>
+	<script type="text/javascript" src="js/undo.js"></script>
+
+	<!-- Editor Script -->
+	<script type="text/javascript" src="js/editor.js"></script>
+
+</head>
+<body>
+	<div class="">
+		<div id="overlay"></div>
+
+		<!-- Header -->
+		<header>
+			<div class="title"></div>
+			<div class="ui buttons">
+				<div class="ui button js-switch-horizontal">Horizontal</div>
+				<div class="ui button js-switch-vertical">Vertical</div>
+			</div>
+
+			<div class="ui buttons">
+				<div class="ui icon button">
+					<i class="left chevron icon"></i>
+				</div>
+				<div class="ui button js-switch-space-none">
+			    	None
+			  	</div>
+			  	<div class="ui button js-switch-space-half">
+			    	Half
+			  	</div>
+			  <div class="ui button js-switch-space-normal">
+			    Normal
+			  </div>
+			  <div class="ui button js-switch-space-double">
+			    Double
+			  </div>
+			  <div class="ui button js-switch-space-quad">
+			    Quad
+			  </div>
+			  <div class="ui button js-switch-space-quad">
+			    Fill
+			  </div>
+			  <div class="ui icon button">
+					<i class="right chevron icon"></i>
+				</div>
+			</div>
+
+			<select name="maximum" id="maximum">
+				<option value="none">∞</option>
+				<option value="stretch">1</option>
+				<option value="two">2</option>
+				<option value="three">3</option>
+				<option value="four">4</option>
+				<option value="five">5</option>
+				<option value="six">6</option>
+				<option value="seven">7</option>
+				<option value="eight">8</option>
+			</select>
+
+			<div class="ui buttons">
+				<div class="ui button js-toggle-start">Start</div>
+				<div class="ui button js-toggle-center">Center</div>
+				<div class="ui button js-toggle-end">End</div>
+			</div>
+
+			<button id='undo'>Undo</button>
+			<button id='redo'>Redo</button>
+
+		</header>
+		<div class="">
+			<iframe id="document" src="document.html" frameborder="0">
+
+			</iframe>
+		</div>
+	</div>
+	<script type="text/javascript">
+		semantic = {};
+		// ready event
+		semantic.ready = function() {
+
+			// selector cache
+			var
+			  $buttons = $('.ui.buttons .button'),
+			  $toggle  = $('.main .ui.toggle.button'),
+			  $button  = $('.ui.button').not($buttons).not($toggle),
+			  // alias
+			  handler = {
+
+			    activate: function() {
+			      $(this)
+			        .addClass('active')
+			        .siblings()
+			        .removeClass('active')
+			      ;
+			    }
+
+			  }
+			;
+
+			$buttons.on('click', handler.activate);
+		};
+		// attach ready event
+		$(document).ready(semantic.ready);
+
+		// init editor
+		$('#document').load(function () {
+			Editor.init($(this));
+		});
+	</script>
+</body>
+</html>

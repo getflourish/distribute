@@ -1,0 +1,254 @@
+/* Basic distribution of child elements */
+
+body {
+	font-family: "Helvetica Neue";
+	font-size: 16px;
+}
+
+/* Ocupation */
+
+.occupy.one.part {
+	flex: 1;
+}
+
+.occupy.two.parts {
+	flex: 2;
+}
+
+.occupy.three.parts {
+	flex: 3;
+}
+
+.occupy.four.parts {
+	flex: 4;
+}
+
+
+.distribute {
+	display: flex;
+  	flex-wrap: nowrap;
+  	list-style: none;
+  	margin: 0;
+  	padding: 0;
+  	align-items: flex-start;	
+  	align-self: stretch;
+}
+
+.distribute > * {
+	flex: 1;
+	justify-content: flex-start;
+	flex-direction: row;
+	padding: 1em;
+}
+
+.distribute.horizontally {
+	flex-direction: row;
+}
+
+.distribute.horizontally > *, .distribute.from.left.to.right > * {
+	flex: 1;	
+}
+
+.distribute.from.left {
+	flex-direction: row;
+}
+
+.distribute.from.left .stretch {
+	align-self: stretch;
+}
+.distribute.from.left .stretch > * {
+	align-items: flex-start;
+	flex: 0;
+}
+
+.distribute.from.right {
+	flex-direction: row-reverse;
+}
+
+.distribute.vertically {
+	flex-direction: column;
+}
+
+.distribute.from.top {
+	flex-direction: column;
+}
+
+.distribute.from.bottom {
+	flex-direction: column-reverse;
+}
+
+/* Grids */
+
+.distribute.in.a.grid {
+	display: flex;
+  	flex-wrap: wrap;
+  	align-content: flex-start;
+}
+
+.distribute.in.a.grid > * {
+	flex: 0 0 auto;
+}
+
+.centered {
+	justify-content: center;
+}
+
+.in.a.grid.of.three {
+	display: flex;
+  	flex-wrap: wrap;
+}
+
+
+/* Stretching */
+
+.stretch {
+	/* 100% width and height */
+	
+	flex-wrap: wrap;
+}
+
+.stretch > * {
+	width: auto;
+	min-width: 0;
+	max-width: none;
+}
+
+.stetch.to.full.width {
+	flex: 0 0 100%;
+}
+
+.stretch.to.full.height {
+
+}
+
+.per.row {
+	flex-wrap: wrap;
+}
+
+.distribute.two.items > *
+.distribute.three.items > *, 
+.distribute.four.items > *,
+.distribute.five.items > *,
+.distribute.six.items > *,
+.distribute.seven.items > *,
+.distribute.eight.items > * {
+	flex: 0 0 auto;
+	-webkit-box-sizing: border-box;
+}
+
+.exactly > * {
+	min-width: 0 !important;
+}
+
+.maximum > * {
+	/* no shrink */
+	flex: 0 0 auto;
+
+}
+
+.distribute.eight.items > * {
+	width: calc(100% / 9);
+}
+
+.distribute.seven.items > * {
+	width: calc(100% / 8);
+}
+
+.distribute.six.items > * {
+	width: calc(100% / 7);
+}
+
+.distribute.five.items > * {
+	width: calc(100% / 6);
+}
+
+.distribute.four.items > * {
+	width: calc(100% / 5);
+}
+
+.distribute.three.items > * {
+	width: calc(100% / 4);
+}
+
+.distribute.two.items > * {
+	width: calc(100% / 3);
+}
+
+.distribute.one.item > * {
+	width: calc(100% / 2);
+}
+
+
+.to.fit.in.a.grid.of.three > * {
+	flex: 0 0 auto;
+	-webkit-box-sizing: border-box;
+	margin: 1em;
+	width: calc(33% - 2em);
+}
+
+.fit.in.a.grid.of.two > * {
+	flex: 0 0 auto;
+	-webkit-box-sizing: border-box;
+	margin: 1em;
+	width: calc(50% - 2em);
+}
+
+/* Shrinking 
+
+
+/* Utility */
+
+.hide {
+	display: none;
+}
+
+/* Alignment */
+
+.align.center {
+	align-content: center;	
+}
+
+/* Spacings */
+.half.space {
+	margin-right: 0.5em;
+}
+
+.normal.space {
+	margin-right: 1em;
+}
+
+.double.space {
+	margin-right: 2em;
+}
+
+.quad.space {
+	margin-right: 4em;
+}
+
+.half.space.in.between > * {
+	margin-right: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.normal.space.in.between > * {
+	margin-right: 1em;
+	margin-bottom: 1em;
+}
+
+.double.space.in.between > * {
+	margin-right: 2em;
+	margin-bottom: 2em;
+}
+
+.quad.space.in.between > * {
+	margin-right: 4em;
+	margin-bottom: 4em;
+}
+
+/* Breakpoints */
+
+@media (max-width: 569px) {
+	.collapses.on.small.devices {
+		display: none;
+	}
+}
