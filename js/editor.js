@@ -24,6 +24,9 @@ var Editor = {
 		// show editor
 		Editor.toggle()
 
+        // Parse Dom
+        Editor.parseDom();
+
         // constantly update the ui
         // window.requestAnimationFrame(Editor.visualize);
 
@@ -667,9 +670,62 @@ var Editor = {
 		target.css("box-shadow", shadows.join(","));
 	},
 	getCard: function () {
-		return $('<div class="ui card"> <div class="image dimmable"> <div class="ui dimmer"> <div class="content"> <div class="center"> <div class="ui inverted button">Add Friend</div> </div> </div> </div> <img src="assets/image.png"> </div> <div class="content"> <div class="header">Title</div> <div class="meta"> <a class="group">Meta</a> </div> <div class="description">One or two sentence description that may go to several lines</div> </div> <div class="extra content"> <a class="right floated created">Arbitrary</a> <a class="friends"> Arbitrary</a> </div> </div>'); }
-}
+		return $('<div class="ui card"> <div class="image dimmable"> <div class="ui dimmer"> <div class="content"> <div class="center"> <div class="ui inverted button">Add Friend</div> </div> </div> </div> <img src="assets/image.png"> </div> <div class="content"> <div class="header">Title</div> <div class="meta"> <a class="group">Meta</a> </div> <div class="description">One or two sentence description that may go to several lines</div> </div> <div class="extra content"> <a class="right floated created">Arbitrary</a> <a class="friends"> Arbitrary</a> </div> </div>');
+    },
+    parseDom: function () {
+
+        Editor.parser.recurseDomChildren(Editor.iframe.find("body")[0], true);
+    }
+ }
 
 Editor.utils = {
 
+}
+
+Editor.parser = {
+
+    recurseDomChildren: function (start, output)
+    {
+        var nodes;
+        if(start.childNodes)
+        {
+            nodes = start.childNodes;
+            Editor.parser.loopNodeChildren(nodes, output);
+        }
+    },
+
+    loopNodeChildren: function (nodes, output)
+    {
+        var node;
+        console.log(nodes)
+        for(var i=0;i<nodes.length;i++)
+        {
+            node = nodes[i];
+            if(output)
+            {
+                Editor.parser.outputNode(node);
+            }
+            if(node.childNodes)
+            {
+                Editor.parser.recurseDomChildren(node, output);
+            }
+        }
+    },
+
+    outputNode: function (node)
+    {
+        var whitespace = /^\s+$/g;
+        if(node.nodeType === 1)
+        {
+            console.log("element: " + node.tagName);
+        }else if(node.nodeType === 3)
+        {
+            //clear whitespace text nodes
+            node.data = node.data.replace(whitespace, "");
+            if(node.data)
+            {
+                console.log("text: " + node.data);
+            }
+        }
+    }
 }
