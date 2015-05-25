@@ -66,7 +66,8 @@ var Editor = {
 
 	},
 	addContainer: function () {
-		var container = $("<div class='ui button'>foo</div>");
+		// var container = $("<div class='ui button'>foo</div>");
+		var container = Editor.getCard();
 		Editor.selectedElement.append(container);
 	},
     beginEditingClassName: function () {
@@ -664,7 +665,9 @@ var Editor = {
 		}
 
 		target.css("box-shadow", shadows.join(","));
-	}
+	},
+	getCard: function () {
+		return $('<div class="ui card"> <div class="image dimmable"> <div class="ui dimmer"> <div class="content"> <div class="center"> <div class="ui inverted button">Add Friend</div> </div> </div> </div> <img src="assets/image.png"> </div> <div class="content"> <div class="header">Title</div> <div class="meta"> <a class="group">Meta</a> </div> <div class="description">One or two sentence description that may go to several lines</div> </div> <div class="extra content"> <a class="right floated created">Arbitrary</a> <a class="friends"> Arbitrary</a> </div> </div>'); }
 }
 
 Editor.utils = {

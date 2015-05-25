@@ -252,3 +252,8 @@ body {
 		display: none;
 	}
 }
+
+
+.align.right {
+	align-items: flex-end;
+}
