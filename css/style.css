@@ -2,6 +2,7 @@
 	width: 100%;
 	min-height: 100vh;
 	-webkit-box-sizing: border-box;
+    font-size: 16px;
 	line-height: 1.4em;
 
 }
@@ -31,3 +32,6 @@ li {
 	background: #ccc;
 }
 
+p {
+    font-size: 1em;
+}

@@ -1,6 +1,6 @@
 var Editor = {
 
-	selectedElement: $("body"),
+	selectedElement: null,
 	stack: null,
 
 	init: function (doc) {
@@ -8,6 +8,8 @@ var Editor = {
 		// Cache dom elements
 		Editor.overlay = $("#overlay");
 		Editor.iframe = doc.contents();
+
+        Editor.select(Editor.iframe.find("body"))
 
 		// Inject CSS
 		Editor.iframe.find("head").append('<link rel="stylesheet" href="css/injected.css">');
@@ -21,6 +23,9 @@ var Editor = {
 
 		// show editor
 		Editor.toggle()
+
+        // constantly update the ui
+        // window.requestAnimationFrame(Editor.visualize);
 
 		var newValue = "";
 
@@ -64,6 +69,23 @@ var Editor = {
 		var container = $("<div class='ui button'>foo</div>");
 		Editor.selectedElement.append(container);
 	},
+    beginEditingClassName: function () {
+        var classes = Editor.selectedElement.attr("class") || "";
+        $(".title").text(Editor.getFormattedClassString(classes));
+        //$(".title").focus();
+        $(".title").on("keyup", function () {
+            var classes = $(this).text() + " selected";
+            Editor.syncClass(classes);
+        });
+    },
+    syncClass: function (classes) {
+        Editor.selectedElement.removeClass();
+        Editor.selectedElement.addClass(classes);
+    },
+    endEditingClassName: function () {
+        // var classes = $(".title").text();
+        // Editor.syncClass(classes);
+    },
 	bind: function () {
 		Editor.bindControls();
 		Editor.bindBehaviors();
@@ -111,15 +133,9 @@ var Editor = {
 				Editor.iframe.find(".selected").removeClass("selected");
 				Editor.select(target);
 
-				if (target.is("html")) {
-					Editor.iframe.find("body").toggleClass("selected")
-				}
-
 				// update editor description
-				var label = "A ";
-				label += "container, that ";
-				label += $(event.target).attr("class");
-				$("header").find(".title").text(label)
+
+				$("header").find(".label-type").text("A container")
 
 
 				Editor.iframe.find(".marker").remove()
@@ -137,7 +153,7 @@ var Editor = {
 						marker.width(element.css("margin-right"))
 						var left = element.outerWidth();
 						var top = element.offset().top;
-						// marker.css("-webkit-transform", "translate(" + left + "px, 0")
+						//marker.css("-webkit-transform", "translate(" + element.css('margin-right') + ", 0")
 						element.append(marker);
 						marker.css("right", "0px")
 						marker.css("top", "0px")
@@ -147,8 +163,6 @@ var Editor = {
 
 				$(".js-input-width").val(target.outerWidth())
 				$(".js-input-height").val(target.outerHeight())
-
-				Editor.selectedElement = target;
 
 				window.addEventListener("webkitTransitionEnd", Editor.updateMarkers, false);
 			} else {
@@ -219,15 +233,23 @@ var Editor = {
 	},
 	bindControlsForClassName: function () {
 		$(".title").on("blur", function (event) {
-			Editor.selectedElement.removeClass();
-			Editor.selectedElement.addClass($(this).text());
+			Editor.endEditingClassName();
 		})
+
+        $(".title").on("focus", function (event) {
+            Editor.beginEditingClassName();
+        })
 	},
 	addSpacingClass: function (className) {
 		Editor.removeClassesOfSpacingForElement(Editor.selectedElement);
-		Editor.selectedElement.addClass(className)
+        Editor.selectedElement.addClass(className)
+		Editor.selectedElement.addClass("space in between")
 		Editor.updateMarkers();
 	},
+    getFormattedClassString: function (string) {
+        console.log(string)
+        return string.replace("selected", "");
+    },
 	removeClassesOfSpacingForElement: function (element) {
 		element.removeClass("half normal double quad");
 	},
@@ -245,7 +267,9 @@ var Editor = {
 	},
 	setupKeys: function () {
 		key('esc', function(){ Editor.toggle();});
-		key('s', function(){ Editor.save(); });
+		key('s', function(){
+            // Editor.save();
+        });
 		key('backspace', function(){Editor.removeElement();return false});
 
 		Editor.iframe.on("keydown", function (e) {
@@ -255,10 +279,22 @@ var Editor = {
 					e.preventDefault();
 					Editor.removeElement(Editor.selectedElement);
 				break;
+                // esc
+                case 27:
+                    Editor.toggle();
+                    break;
+                // space
+                case 32:
+                    e.preventDefault();
+                    // start dragging the canvas
+                    Editor.iframe.find("body").addClass("js-cursor-dragmove");
+                    break;
+                // up
 				case 38:
 					e.preventDefault();
 					Editor.selectPrevious();
 				break;
+                // down
 				case 40:
 					e.preventDefault();
 					Editor.selectNext();
@@ -268,9 +304,15 @@ var Editor = {
 
 		Editor.iframe.on("keyup", function (e) {
 			switch (e.keyCode) {
-				case 65:
-					Editor.addContainer();
-					break;
+                // space
+                case 32:
+                    e.preventDefault();
+                    // start dragging the canvas
+                    Editor.iframe.find("body").removeClass("js-cursor-dragmove");
+                    break;
+                case 65:
+                    Editor.addContainer();
+                    break;
 			}
 		})
 	},
@@ -306,7 +348,7 @@ var Editor = {
 		return nearestElement;
 	},
 	handleDistribute: function () {
-		Editor.selectedElement.addClass("distribute")
+		Editor.selectedElement.addClass("distributes")
 		Editor.selectedElement.removeClass("stretch")
 
 		var maximum = $("#maximum").val();
@@ -322,7 +364,7 @@ var Editor = {
 
 	stretch: function () {
 		Editor.selectedElement.addClass("stretch")
-		Editor.selectedElement.removeClass("distribute")
+		Editor.selectedElement.removeClass("distributes")
 		Editor.updateMarkers();
 	},
 
@@ -346,7 +388,7 @@ var Editor = {
 		});
 	},
 	hasMinWidth: function (element) {
-		return element.css("min-width") != "0px";
+		return (element.css("min-width") != "0px") && (parseInt(element.css("min-width") == element.outerWidth()));
 	},
 
 	hasMaxWidth: function (element) {
@@ -361,13 +403,11 @@ var Editor = {
 
 		// Editor.startReflow(element);
 
-		// Editor.bindDragging();
-
 		$("#document").contents().on("mouseup", function () {
 			// detach all event listener
 			$("#document").contents().off("mousemove");
 			element.removeClass("js-is-dragging")
-			element.children().removeAttr("style")
+			//element.children().removeAttr("style")
 
 			var dropTarget = Editor.getNearestNeighborForElement(element);
 
@@ -404,38 +444,46 @@ var Editor = {
 		Editor.lasso.css("top", Editor.initialMousePosition.y + "px")
 
 		// duration in ms that we want to wait until we handle a long press event
-		var threshold = 1000;
+		var threshold = 200;
 
 		// calculate the time difference between the first mouse down event and the current one
 		// used to detect a long press
 
-		if (Editor.timestampOfFirstMouseDownEvent != null) {
+        Editor.isMouseDown = true;
 
-			var currentTimestamp = new Date().getTime();
+        // check if the mouse is still down after the threshold
+        setTimeout(function () {
+            if (Editor.isMouseDown) Editor.onLongPress(event);
+        }, threshold);
 
-			if (currentTimestamp - Editor.timestampOfFirstMouseDownEvent < threshold) {
-				alert("long press")
-			}
-		} else {
-
-			// remember the time of the initial mouse down event
-			Editor.timestampOfFirstMouseDownEvent = new Date().getTime();
-		}
-		console.log($(window))
 	},
 	onMultiSelectMove: function (event) {
 
-		var width = event.clientX - Editor.initialMousePosition.x;
-		var height = event.clientY - Editor.initialMousePosition.y;
+        var x = Math.min(Editor.initialMousePosition.x, event.clientX);
+        var y = Math.min(Editor.initialMousePosition.y, event.clientY);
+		var width = Math.abs(event.clientX - Editor.initialMousePosition.x);
+		var height = Math.abs(event.clientY - Editor.initialMousePosition.y);
 
+        Editor.lasso.css("top", y + "px");
+        Editor.lasso.css("left", x + "px");
 		Editor.lasso.css("width", width + "px");
 		Editor.lasso.css("height", height + "px");
+
+        Editor.isMouseDown = false;
 
 		// handle some sort of hit detection to figure out what elements are inside the selection
 	},
 	onMultiSelectEnd: function (event) {
 		Editor.lasso.remove();
+        Editor.isMouseDown = false;
 	},
+    onLongPress: function (event) {
+        // cancel multiselect
+        Editor.onMultiSelectEnd()
+        Editor.selectedElement.addClass("js-is-elevated-by-5");
+        Editor.selectedElement.addClass("js-is-dragging");
+        Editor.bindDragging(event, Editor.selectedElement);
+    },
 	startReflow: function (element) {
 		element.children().css("position", "absolute")
 		element.children().css("left", "0px")
@@ -447,8 +495,24 @@ var Editor = {
 		Editor.scrollToElement(Editor.selectedElement);
 	},
 	select: function (element) {
+        // restore style for currently selected element and remove the selected state
+        if (Editor.selectedElement != null) {
+            Editor.restoreStyle(Editor.selectedElement);
+            Editor.iframe.find(".selected").removeClass("selected")
+        }
+
+        // check if an element or the whole canvas should be selected
+        if (element.is("html")) {
+            Editor.selectedElement = Editor.iframe.find("body");
+        } else {
+            Editor.selectedElement = element;
+        }
+
+        Editor.beginEditingClassName();
+
+        // select element and store its style
 		Editor.selectedElement = element;
-		Editor.iframe.find(".selected").removeClass("selected")
+        Editor.storedStyle = element.attr("style");
 		element.toggleClass("selected")
 	},
 	selectNext: function () {
@@ -479,18 +543,26 @@ var Editor = {
 		}
 		element.remove();
 	},
-	bindDragging: function () {
+    removeStyle: function (element) {
+        element.removeAttr("style");
+        return element;
+    },
+    restoreStyle: function (element) {
+        element.attr("style", Editor.storedStyle);
+    },
+	bindDragging: function (event, element) {
+
+        var element = element;
+
+        var offsetX = event.clientX - element.offset().left;
+        var offsetY = event.clientY - element.offset().top;
+
 		$("#document").contents().on("mousemove", function (event) {
 
-			element.css("width", element.outerWidth())
-			element.css("height", element.outerHeight())
-			element.css("left", element.offset().left)
-			element.css("top", element.offset().top);
+            element.addClass("js-is-dragging");
 
-			element.addClass("js-is-dragging");
-
-			var left = event.pageX - offsetX
-			var top = event.pageY - offsetY
+            var left = event.clientX - offsetX;
+			var top = event.clientY - offsetY;
 
 			element.css("left", left)
 			element.css("top", top);
@@ -502,14 +574,23 @@ var Editor = {
 		Editor.iframe.find("body *").each (function () {
 			var target = $(this);
 			if (Editor.hasMinWidth(target) || Editor.hasMaxWidth(target)) {
-				target.append(lock)
-				lock.css("left", target.position().left + target.outerWidth() - 10)
-				lock.css("top", target.position().top + target.outerHeight() / 2)
+
+				var el = lock.clone().appendTo(target)
+
+                var width = el.outerWidth();
+                var height = el.outerHeight();
+
+                target.css("position", "relative")
+
+                el.css("top", "50%")
+                el.css("right", "0px")
+				el.css("margin-right", - width / 2 + "px")
 			}
 		})
 
 		Editor.visualizePadding();
 		// Editor.visualizeMargin();
+        // Editor.updateMarkers();
 	},
 	visualizePadding: function () {
 		// padding of selected element
